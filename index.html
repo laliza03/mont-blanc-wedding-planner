@@ -3,20 +3,65 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Mont-Blanc Wedding Planner V2</title>
+  <meta name="theme-color" content="#f7f3fb" />
+  <title>Mont-Blanc Wedding Planner</title>
   <link rel="stylesheet" href="./styles.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.167.1/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.167.1/examples/jsm/"
+    }
+  }
+  </script>
 </head>
 <body>
   <div id="app">
-    <aside class="sidebar">
-      <div class="brand">
-        <h1>Mont-Blanc Wedding Planner</h1>
-        <div class="pill">V2</div>
-      </div>
-      <p class="sub">Interactive 3D planning model for La Sirène's Mont-Blanc room.</p>
+    <aside class="sidebar" id="sidebar">
+      <header class="brandbar">
+        <div>
+          <div class="eyebrow">LA SIRÈNE · SALLE MONT-BLANC</div>
+          <h1>Wedding Planner</h1>
+          <p>Plan the room in 3D, move tables, assign guests and test your décor.</p>
+        </div>
+        <button class="iconBtn" id="closeSidebar" aria-label="Hide planner">←</button>
+      </header>
 
-      <details open>
-        <summary>Theme & décor</summary>
+      <div class="quickStats">
+        <div><strong id="seatCountSide">95</strong><span>seats</span></div>
+        <div><strong id="tableCountSide">10</strong><span>tables</span></div>
+        <div><strong>120</strong><span>venue max</span></div>
+      </div>
+
+      <nav class="sectionNav" aria-label="Planner sections">
+        <button class="navChip active" data-jump="layoutPanel">Layout</button>
+        <button class="navChip" data-jump="stationsPanel">Stations</button>
+        <button class="navChip" data-jump="guestsPanel">Guests</button>
+        <button class="navChip" data-jump="decorPanel">Décor</button>
+      </nav>
+
+      <section class="panel" id="layoutPanel">
+        <div class="panelTitle"><span>01</span><div><h2>Room & seating</h2><p>Build the reception layout first.</p></div></div>
+        <div class="grid2">
+          <label>Guest tables<input id="tableCount" type="number" min="8" max="10" value="10"></label>
+          <label>Total guests<input id="guestTarget" type="number" min="70" max="100" value="95"></label>
+        </div>
+        <button class="primary" id="rebuild">Rebuild seating layout</button>
+        <div id="seatDistribution" class="distribution"></div>
+
+        <div class="divider"></div>
+        <label>Selected object<select id="selectedObject"><option value="">Select a table or station</option></select></label>
+        <div class="controlGrid">
+          <label>X position<input id="xPos" type="range" min="-16" max="16" step=".25"></label>
+          <label>Z position<input id="zPos" type="range" min="-29" max="29" step=".25"></label>
+          <label>Rotate<input id="rot" type="range" min="0" max="360" step="5"></label>
+          <label>Scale<input id="scale" type="range" min=".7" max="1.4" step=".05" value="1"></label>
+        </div>
+        <p class="tip">Tip: click a table directly in the 3D room, then drag the arrows to move it.</p>
+      </section>
+
+      <section class="panel">
+        <div class="panelTitle"><span>02</span><div><h2>Theme & décor</h2><p>Keep the room light, elegant and warm.</p></div></div>
         <label>Palette
           <select id="theme">
             <option value="lavender">Lavender + Ivory + Gold</option>
@@ -27,126 +72,90 @@
           </select>
         </label>
         <div class="swatches" id="swatches"></div>
-        <label>Floral intensity
-          <input id="floralIntensity" type="range" min="0" max="1" step="0.1" value="0.35">
-        </label>
-        <label>Gold intensity
-          <input id="goldIntensity" type="range" min="0.5" max="1.8" step="0.1" value="1.25">
-        </label>
-      </details>
-
-      <details open>
-        <summary>Room & seating</summary>
-        <div class="grid2">
-          <label>Tables
-            <input id="tableCount" type="number" min="8" max="10" value="10">
-          </label>
-          <label>Total guests
-            <input id="guestTarget" type="number" min="70" max="100" value="95">
-          </label>
+        <div class="controlGrid">
+          <label>Florals<input id="floralIntensity" type="range" min="0" max="1" step="0.1" value="0.35"></label>
+          <label>Gold accents<input id="goldIntensity" type="range" min="0.5" max="1.8" step="0.1" value="1.25"></label>
         </div>
-        <button id="rebuild">Rebuild 95-seat layout</button>
-        <div id="seatDistribution" class="smallbox"></div>
-      </details>
+      </section>
 
-      <details open>
-        <summary>Stations</summary>
-        <div class="checks">
-          <label><input id="photoBooth" type="checkbox" checked> Photo booth</label>
-          <label><input id="polaroid" type="checkbox" checked> Polaroid scrapbook</label>
-          <label><input id="video" type="checkbox" checked> Video messages</label>
-          <label><input id="advice" type="checkbox" checked> Marriage advice</label>
-          <label><input id="cake" type="checkbox" checked> Cake / sweets</label>
-          <label><input id="dj" type="checkbox" checked> DJ</label>
+      <section class="panel" id="stationsPanel">
+        <div class="panelTitle"><span>03</span><div><h2>Activity stations</h2><p>Toggle each wedding activity on or off.</p></div></div>
+        <div class="stationGrid">
+          <label><input id="photoBooth" type="checkbox" checked><span>📸</span> Photo booth</label>
+          <label><input id="polaroid" type="checkbox" checked><span>📷</span> Polaroid book</label>
+          <label><input id="video" type="checkbox" checked><span>🎥</span> Video messages</label>
+          <label><input id="advice" type="checkbox" checked><span>💌</span> Advice jar</label>
+          <label><input id="cake" type="checkbox" checked><span>🎂</span> Cake / sweets</label>
+          <label><input id="dj" type="checkbox" checked><span>🎵</span> DJ</label>
         </div>
-      </details>
+      </section>
 
-      <details open>
-        <summary>Selected object</summary>
-        <label>Object
-          <select id="selectedObject"></select>
-        </label>
-        <div class="grid2">
-          <label>X <input id="xPos" type="range" min="-16" max="16" step=".25"></label>
-          <label>Z <input id="zPos" type="range" min="-29" max="29" step=".25"></label>
-        </div>
-        <div class="grid2">
-          <label>Rotate <input id="rot" type="range" min="0" max="360" step="5"></label>
-          <label>Scale <input id="scale" type="range" min=".7" max="1.4" step=".05" value="1"></label>
-        </div>
-      </details>
-
-      <details>
-        <summary>Guest seating</summary>
-        <div class="grid2">
+      <section class="panel" id="guestsPanel">
+        <div class="panelTitle"><span>04</span><div><h2>Guest seating</h2><p>Assign guests and mix both families.</p></div></div>
+        <div class="grid2 guestInputs">
           <input id="guestName" placeholder="Guest name">
-          <select id="guestSide">
-            <option>Bride family</option>
-            <option>Groom family</option>
-            <option>Friends</option>
-          </select>
+          <select id="guestSide"><option>Bride family</option><option>Groom family</option><option>Friends</option></select>
         </div>
-        <button id="addGuest">Add guest</button>
-        <button id="fillDemoGuests">Add 95 demo guests</button>
-        <div id="guestList"></div>
-      </details>
+        <div class="buttonrow"><button id="addGuest">Add guest</button><button id="fillDemoGuests">Fill 95 demo guests</button></div>
+        <div id="guestList" class="scrollList"></div>
+      </section>
 
-      <details>
-        <summary>Décor shopping list</summary>
-        <div class="grid3">
-          <input id="itemName" placeholder="Item">
-          <input id="itemPrice" type="number" min="0" step=".01" placeholder="$">
-          <input id="itemQty" type="number" min="1" value="1">
-        </div>
+      <section class="panel" id="decorPanel">
+        <div class="panelTitle"><span>05</span><div><h2>Décor budget</h2><p>Keep a simple shopping list while you design.</p></div></div>
+        <div class="grid3"><input id="itemName" placeholder="Item"><input id="itemPrice" type="number" min="0" step=".01" placeholder="$"><input id="itemQty" type="number" min="1" value="1"></div>
         <input id="itemUrl" placeholder="Product link (optional)">
         <button id="addItem">Add décor item</button>
-        <div id="shoppingList"></div>
-        <div class="budgetTotal">Estimated décor total: <strong id="budgetTotal">$0</strong></div>
-      </details>
+        <div id="shoppingList" class="scrollList"></div>
+        <div class="budgetTotal"><span>Estimated décor total</span><strong id="budgetTotal">$0</strong></div>
+      </section>
 
-      <details>
-        <summary>Views</summary>
-        <div class="buttonrow">
-          <button id="topView">Top</button>
-          <button id="roomView">3D Room</button>
-          <button id="windowView">Windows</button>
-        </div>
-        <div class="buttonrow">
-          <button id="guestView1">Guest view A</button>
-          <button id="guestView2">Guest view B</button>
-          <button id="coupleView">Couple view</button>
-        </div>
-        <label><input id="wallsToggle" type="checkbox" checked> Show walls</label>
-        <label><input id="labelsToggle" type="checkbox" checked> Show labels</label>
-      </details>
+      <section class="panel compact">
+        <div class="panelTitle"><span>06</span><div><h2>Save & share</h2></div></div>
+        <div class="buttonrow"><button id="saveLocal">Save</button><button id="loadLocal">Load</button><button id="downloadPlan">Export JSON</button></div>
+        <label class="fileLabel">Import plan<input id="importPlan" type="file" accept=".json,application/json"></label>
+      </section>
 
-      <details>
-        <summary>Save / share</summary>
-        <div class="buttonrow">
-          <button id="saveLocal">Save</button>
-          <button id="loadLocal">Load</button>
-          <button id="downloadPlan">Export JSON</button>
-        </div>
-        <label class="fileLabel">Import JSON
-          <input id="importPlan" type="file" accept=".json,application/json">
-        </label>
-      </details>
-
-      <p class="note">Room shell: approx. 35 ft × 62 ft × 12.5 ft. Window positions and furniture dimensions are estimated from your reference photos, so use this for planning rather than construction drawings.</p>
+      <p class="note">The room shell follows the supplied Mont-Blanc floor plan: 35 ft maximum width, 62 ft length and 12.5 ft ceiling. Furniture and window dimensions remain planning approximations.</p>
     </aside>
 
     <main>
       <div id="viewport"></div>
-      <div class="topHud">
-        <div class="metric"><span>Assigned</span><strong id="assignedCount">0</strong></div>
-        <div class="metric"><span>Unassigned</span><strong id="unassignedCount">95</strong></div>
-        <div class="metric"><span>Seats</span><strong id="seatCount">95</strong></div>
-        <div class="metric"><span>Tables</span><strong id="tableCountMetric">10</strong></div>
+
+      <button id="openSidebar" class="floatingPlannerBtn" aria-label="Open planner">☰ Planner</button>
+
+      <div class="canvasTopbar">
+        <div class="viewGroup">
+          <span class="toolbarLabel">VIEW</span>
+          <button id="topView">Top</button>
+          <button id="roomView" class="active">3D room</button>
+          <button id="windowView">Windows</button>
+          <button id="guestView1">Guest A</button>
+          <button id="guestView2">Guest B</button>
+          <button id="coupleView">Couple</button>
+        </div>
+        <div class="displayGroup">
+          <label><input id="wallsToggle" type="checkbox" checked> Walls</label>
+          <label><input id="labelsToggle" type="checkbox" checked> Labels</label>
+        </div>
       </div>
+
+      <div class="topHud">
+        <div class="metric"><strong id="assignedCount">0</strong><span>assigned</span></div>
+        <div class="metric"><strong id="unassignedCount">95</strong><span>unassigned</span></div>
+        <div class="metric"><strong id="seatCount">95</strong><span>seats</span></div>
+        <div class="metric"><strong id="tableCountMetric">10</strong><span>tables</span></div>
+      </div>
+
+      <div class="orientationCard">
+        <span class="windowDot"></span><strong>WINDOW SIDE</strong>
+        <span class="exitDot"></span><strong>EMERGENCY EXIT</strong>
+      </div>
+
       <div id="hud">
-        <span id="status">Click an object to select it. Drag the transform gizmo to move it.</span>
+        <span id="status">Loading 3D room…</span>
         <span id="capacity">95 seats</span>
       </div>
+      <div id="errorBanner" hidden></div>
     </main>
   </div>
   <script type="module" src="./app.js"></script>
