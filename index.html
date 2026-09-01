@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mont-Blanc Wedding Planner V2</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div id="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>Mont-Blanc Wedding Planner</h1>
+        <div class="pill">V2</div>
+      </div>
+      <p class="sub">Interactive 3D planning model for La Sirène's Mont-Blanc room.</p>
+
+      <details open>
+        <summary>Theme & décor</summary>
+        <label>Palette
+          <select id="theme">
+            <option value="lavender">Lavender + Ivory + Gold</option>
+            <option value="amethyst">Amethyst + Lilac + Gold</option>
+            <option value="sage">Sage + Ivory + Gold</option>
+            <option value="blush">Blush + Ivory + Gold</option>
+            <option value="blue">Dusty Blue + Ivory + Gold</option>
+          </select>
+        </label>
+        <div class="swatches" id="swatches"></div>
+        <label>Floral intensity
+          <input id="floralIntensity" type="range" min="0" max="1" step="0.1" value="0.35">
+        </label>
+        <label>Gold intensity
+          <input id="goldIntensity" type="range" min="0.5" max="1.8" step="0.1" value="1.25">
+        </label>
+      </details>
+
+      <details open>
+        <summary>Room & seating</summary>
+        <div class="grid2">
+          <label>Tables
+            <input id="tableCount" type="number" min="8" max="10" value="10">
+          </label>
+          <label>Total guests
+            <input id="guestTarget" type="number" min="70" max="100" value="95">
+          </label>
+        </div>
+        <button id="rebuild">Rebuild 95-seat layout</button>
+        <div id="seatDistribution" class="smallbox"></div>
+      </details>
+
+      <details open>
+        <summary>Stations</summary>
+        <div class="checks">
+          <label><input id="photoBooth" type="checkbox" checked> Photo booth</label>
+          <label><input id="polaroid" type="checkbox" checked> Polaroid scrapbook</label>
+          <label><input id="video" type="checkbox" checked> Video messages</label>
+          <label><input id="advice" type="checkbox" checked> Marriage advice</label>
+          <label><input id="cake" type="checkbox" checked> Cake / sweets</label>
+          <label><input id="dj" type="checkbox" checked> DJ</label>
+        </div>
+      </details>
+
+      <details open>
+        <summary>Selected object</summary>
+        <label>Object
+          <select id="selectedObject"></select>
+        </label>
+        <div class="grid2">
+          <label>X <input id="xPos" type="range" min="-16" max="16" step=".25"></label>
+          <label>Z <input id="zPos" type="range" min="-29" max="29" step=".25"></label>
+        </div>
+        <div class="grid2">
+          <label>Rotate <input id="rot" type="range" min="0" max="360" step="5"></label>
+          <label>Scale <input id="scale" type="range" min=".7" max="1.4" step=".05" value="1"></label>
+        </div>
+      </details>
+
+      <details>
+        <summary>Guest seating</summary>
+        <div class="grid2">
+          <input id="guestName" placeholder="Guest name">
+          <select id="guestSide">
+            <option>Bride family</option>
+            <option>Groom family</option>
+            <option>Friends</option>
+          </select>
+        </div>
+        <button id="addGuest">Add guest</button>
+        <button id="fillDemoGuests">Add 95 demo guests</button>
+        <div id="guestList"></div>
+      </details>
+
+      <details>
+        <summary>Décor shopping list</summary>
+        <div class="grid3">
+          <input id="itemName" placeholder="Item">
+          <input id="itemPrice" type="number" min="0" step=".01" placeholder="$">
+          <input id="itemQty" type="number" min="1" value="1">
+        </div>
+        <input id="itemUrl" placeholder="Product link (optional)">
+        <button id="addItem">Add décor item</button>
+        <div id="shoppingList"></div>
+        <div class="budgetTotal">Estimated décor total: <strong id="budgetTotal">$0</strong></div>
+      </details>
+
+      <details>
+        <summary>Views</summary>
+        <div class="buttonrow">
+          <button id="topView">Top</button>
+          <button id="roomView">3D Room</button>
+          <button id="windowView">Windows</button>
+        </div>
+        <div class="buttonrow">
+          <button id="guestView1">Guest view A</button>
+          <button id="guestView2">Guest view B</button>
+          <button id="coupleView">Couple view</button>
+        </div>
+        <label><input id="wallsToggle" type="checkbox" checked> Show walls</label>
+        <label><input id="labelsToggle" type="checkbox" checked> Show labels</label>
+      </details>
+
+      <details>
+        <summary>Save / share</summary>
+        <div class="buttonrow">
+          <button id="saveLocal">Save</button>
+          <button id="loadLocal">Load</button>
+          <button id="downloadPlan">Export JSON</button>
+        </div>
+        <label class="fileLabel">Import JSON
+          <input id="importPlan" type="file" accept=".json,application/json">
+        </label>
+      </details>
+
+      <p class="note">Room shell: approx. 35 ft × 62 ft × 12.5 ft. Window positions and furniture dimensions are estimated from your reference photos, so use this for planning rather than construction drawings.</p>
+    </aside>
+
+    <main>
+      <div id="viewport"></div>
+      <div class="topHud">
+        <div class="metric"><span>Assigned</span><strong id="assignedCount">0</strong></div>
+        <div class="metric"><span>Unassigned</span><strong id="unassignedCount">95</strong></div>
+        <div class="metric"><span>Seats</span><strong id="seatCount">95</strong></div>
+        <div class="metric"><span>Tables</span><strong id="tableCountMetric">10</strong></div>
+      </div>
+      <div id="hud">
+        <span id="status">Click an object to select it. Drag the transform gizmo to move it.</span>
+        <span id="capacity">95 seats</span>
+      </div>
+    </main>
+  </div>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
