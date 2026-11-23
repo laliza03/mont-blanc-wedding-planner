@@ -675,3 +675,32 @@ main {
     transition:none!important
   }
 }
+textarea { width:100%; resize:vertical; min-height:100px; border:1px solid var(--line); border-radius:9px; padding:12px; font:inherit; color:var(--text); background:#fff; line-height:1.5; }
+textarea:focus-visible { outline:2px solid var(--deep); outline-offset:2px; }
+.themePromptChips { display:flex; flex-wrap:wrap; gap:6px; margin:9px 0 12px; }
+.themePromptChips button { width:auto; font-size:.8125rem; padding:6px 9px; border-radius:20px; }
+.themeScope { display:flex; gap:8px; align-items:center; margin:18px 0 10px; }
+.activeThemeLabel { font-size:.875rem; font-weight:650; color:var(--deep); line-height:1.4; }
+.themePaletteList { display:grid; gap:10px; margin:12px 0; }
+.themeCard { overflow:hidden; padding:0 0 12px; text-align:left; background:#fff; border-radius:10px; }
+.themeCard[aria-pressed=true] { border:2px solid var(--deep); background:#f6f1fa; }
+.themeRibbon { display:flex; width:100%; height:34px; margin-bottom:10px; border-bottom:1px solid #0000000c; }
+.themeRibbon span { flex:1; }
+.themeCard strong,.themeDescription,.themeCardAction { display:block; padding:0 12px; }
+.themeCard strong { font-size:.9375rem; font-weight:650; }
+.themeDescription { font-size:.8125rem; line-height:1.5; margin:4px 0; color:var(--muted); }
+.themeCardAction { font-size:.8125rem; margin-top:7px; color:var(--deep); }
+.themePreviewBar { border:1px solid #cbb7df; padding:12px; border-radius:10px; background:#f4eef9; }
+.themePreviewBar>strong { font-size:.875rem; }
+.themePreviewBar>button { font-size:.875rem; }
+.themePreviewTips p { margin:8px 0; font-size:.8125rem; color:var(--muted); line-height:1.5; }
+.presetThemes { margin:14px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:12px 0; }
+.presetThemes summary { font-size:.875rem; cursor:pointer; font-weight:600; }
+.presetThemes .themePaletteList { max-height:440px; overflow:auto; padding:2px; }
+.themeCustomHeading { font-size:.9375rem; margin:14px 0 6px; }
+#cancelThemes { margin-top:8px; font-size:.875rem; }
+@media(max-width:760px) {
+  #closeSidebar { position:fixed; top:16px; left:min(calc(90vw - 48px),352px); z-index:30; background:#fff; box-shadow:0 3px 12px #3023371a; }
+  .sidebar .sectionNav { margin-right:42px; }
+  .brandbar>div { padding-right:35px; }
+}

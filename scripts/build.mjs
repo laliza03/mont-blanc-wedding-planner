@@ -3,7 +3,7 @@ const root = new URL('../', import.meta.url);
 const dist = new URL('dist/', root);
 await rm(dist, {recursive:true,force:true});
 await mkdir(dist, {recursive:true});
-for(const file of ['index.html','styles.css','app.js','planner-state.js','.nojekyll','vendor']) {
+for(const file of ['index.html','styles.css','app.js','planner-state.js','theme-engine.js','theme-assistant-ui.js','ai-config.json','.nojekyll','vendor']) {
   await cp(new URL(file,root),new URL(file,dist),{recursive:true});
 }
 console.log('Static site built in dist/. No external scripts or build dependencies required.');

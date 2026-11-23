@@ -1,0 +1,1 @@
+{"name":"mont-blanc-theme-agent","private":true,"type":"module","scripts":{"test":"node --test","build":"bash scripts/build.sh","validate":"node scripts/validate-artifact.mjs"}}
