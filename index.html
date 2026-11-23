@@ -3,161 +3,147 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="theme-color" content="#f7f3fb" />
+  <meta name="theme-color" content="#725b98" />
+  <meta name="description" content="Try decorations, colours and seating in your Mont-Blanc wedding reception room." />
   <title>Mont-Blanc Wedding Planner</title>
   <link rel="stylesheet" href="./styles.css" />
   <script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.167.1/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.167.1/examples/jsm/"
-    }
-  }
+  {"imports":{"three":"./vendor/three/three.module.js","three/addons/":"./vendor/three/addons/"}}
   </script>
 </head>
 <body>
   <div id="app">
-    <aside class="sidebar" id="sidebar">
+    <aside class="sidebar" id="sidebar" aria-label="Wedding planner">
       <header class="brandbar">
-        <div>
-          <div class="eyebrow">LA SIRÈNE · SALLE MONT-BLANC</div>
-          <h1>Wedding Planner</h1>
-          <p>Plan the room in 3D, move tables, assign guests and test your décor.</p>
-        </div>
-        <button class="iconBtn" id="closeSidebar" aria-label="Hide planner">←</button>
+        <div><div class="eyebrow">LA SIRÈNE · SALLE MONT-BLANC</div><h1>Your wedding, in view.</h1><p>Add the details, try your colours and make the room yours.</p></div>
+        <button class="iconBtn" id="closeSidebar" aria-label="Hide planner">×</button>
       </header>
-
       <div class="quickStats">
         <div><strong id="seatCountSide">95</strong><span>seats</span></div>
         <div><strong id="tableCountSide">10</strong><span>tables</span></div>
-        <div><strong>120</strong><span>venue max</span></div>
+        <div><strong id="decorCount">0</strong><span>decorations</span></div>
       </div>
-
       <nav class="sectionNav" aria-label="Planner sections">
-        <button class="navChip active" data-jump="layoutPanel">Layout</button>
+        <button class="navChip active" data-jump="decorPanel">Decorate</button>
+        <button class="navChip" data-jump="themePanel">Colours</button>
+        <button class="navChip" data-jump="layoutPanel">Layout</button>
         <button class="navChip" data-jump="stationsPanel">Stations</button>
         <button class="navChip" data-jump="guestsPanel">Guests</button>
-        <button class="navChip" data-jump="decorPanel">Décor</button>
+        <button class="navChip" data-jump="budgetPanel">Budget</button>
+        <button class="navChip" data-jump="savePanel">Save</button>
       </nav>
-
+      <section class="panel" id="decorPanel">
+        <div class="panelTitle"><div><h2>Decorate the room</h2><p>Choose a piece to place in the 3D room.</p></div></div>
+        <div class="decorLibrary" id="decorLibrary">
+          <button data-decor="flowers"><span aria-hidden="true">✿</span>Florals</button>
+          <button data-decor="candles"><span aria-hidden="true">♧</span>Candles</button>
+          <button data-decor="arch"><span aria-hidden="true">∩</span>Wedding arch</button>
+          <button data-decor="backdrop"><span aria-hidden="true">▥</span>Draped backdrop</button>
+          <button data-decor="vase"><span aria-hidden="true">♙</span>Tall vase</button>
+          <button data-decor="plant"><span aria-hidden="true">❧</span>Greenery</button>
+          <button data-decor="lantern"><span aria-hidden="true">♜</span>Lantern</button>
+          <button data-decor="runner"><span aria-hidden="true">▱</span>Aisle runner</button>
+        </div>
+        <p class="tip">New pieces appear near the centre of your view. Select a table first to place flowers, candles, a vase or a lantern on it.</p>
+        <div class="divider"></div>
+        <label>Selected object<select id="selectedObject"><option value="">Select an object</option></select></label>
+        <fieldset id="objectControls" disabled>
+          <div class="controlGrid">
+            <label>X position · ft<input id="xPos" type="range" min="-17" max="17" step=".1" value="0"><output id="xValue">0</output></label>
+            <label>Z position · ft<input id="zPos" type="range" min="-30" max="30" step=".1" value="0"><output id="zValue">0</output></label>
+            <label>Rotation<input id="rot" type="range" min="0" max="360" step="5" value="0"><output id="rotValue">0°</output></label>
+            <label>Size<input id="scale" type="range" min=".4" max="2" step=".05" value="1"><output id="scaleValue">100%</output></label>
+            <label id="heightLabel">Height · ft<input id="height" type="range" min="0" max="8" step=".05" value="0"><output id="heightValue">0</output></label>
+            <label id="objectColorLabel">Piece colour<input id="objectColor" type="color" value="#a78cc7"></label>
+          </div>
+          <div class="buttonrow two"><button id="followTheme">Use palette colour</button><button id="duplicateObject">Duplicate</button></div>
+          <button id="deleteObject" class="danger">Remove decoration</button>
+        </fieldset>
+        <p class="tip">Drag a piece in the room to move it. Drag empty space to orbit; scroll to zoom. Turn off “Move pieces” when exploring a guest view.</p>
+        <div id="decorationList" class="scrollList decorList" aria-label="Placed decorations"></div>
+      </section>
+      <section class="panel" id="themePanel">
+        <div class="panelTitle"><div><h2>Colours & atmosphere</h2><p>Preview changes without moving your furniture.</p></div></div>
+        <label>Palette<select id="theme">
+          <option value="lavender">Lavender + Ivory + Gold</option><option value="amethyst">Amethyst + Lilac + Gold</option>
+          <option value="sage">Sage + Ivory + Gold</option><option value="blush">Blush + Ivory + Gold</option><option value="blue">Dusty Blue + Ivory + Gold</option>
+        </select></label>
+        <div class="swatches" id="swatches"></div>
+        <div class="colorGrid">
+          <label>Accent<input type="color" id="color-accent"></label><label>Flowers<input type="color" id="color-deep"></label>
+          <label>Metal<input type="color" id="color-gold"></label><label>Table linens<input type="color" id="color-linen"></label>
+          <label>Chairs<input type="color" id="color-chairs"></label><label>Walls<input type="color" id="color-walls"></label>
+          <label>Room floor<input type="color" id="color-floor"></label><label>Dance floor<input type="color" id="color-dance"></label>
+        </div>
+        <div class="controlGrid">
+          <label>Floral fullness<input id="floralIntensity" type="range" min="0" max="1" step="0.05" value="0.35"></label>
+          <label>Metallic shine<input id="goldIntensity" type="range" min="0.5" max="1.8" step="0.05" value="1.25"></label>
+        </div>
+      </section>
       <section class="panel" id="layoutPanel">
-        <div class="panelTitle"><span>01</span><div><h2>Room & seating</h2><p>Build the reception layout first.</p></div></div>
+        <div class="panelTitle"><div><h2>Room & seating</h2><p>Up to 120 guests in the venue.</p></div></div>
         <div class="grid2">
           <label>Guest tables<input id="tableCount" type="number" min="8" max="10" value="10"></label>
-          <label>Total guests<input id="guestTarget" type="number" min="70" max="100" value="95"></label>
+          <label>Total guests<input id="guestTarget" type="number" min="1" max="120" value="95"></label>
         </div>
-        <button class="primary" id="rebuild">Rebuild seating layout</button>
+        <button class="primary" id="rebuild">Update seating</button>
         <div id="seatDistribution" class="distribution"></div>
-
-        <div class="divider"></div>
-        <label>Selected object<select id="selectedObject"><option value="">Select a table or station</option></select></label>
-        <div class="controlGrid">
-          <label>X position<input id="xPos" type="range" min="-16" max="16" step=".25"></label>
-          <label>Z position<input id="zPos" type="range" min="-29" max="29" step=".25"></label>
-          <label>Rotate<input id="rot" type="range" min="0" max="360" step="5"></label>
-          <label>Scale<input id="scale" type="range" min=".7" max="1.4" step=".05" value="1"></label>
-        </div>
-        <p class="tip">Tip: click a table directly in the 3D room, then drag the arrows to move it.</p>
+        <p class="tip">Updating seats keeps existing table positions. Select any table in the room to move, rotate or resize it.</p>
       </section>
-
-      <section class="panel">
-        <div class="panelTitle"><span>02</span><div><h2>Theme & décor</h2><p>Keep the room light, elegant and warm.</p></div></div>
-        <label>Palette
-          <select id="theme">
-            <option value="lavender">Lavender + Ivory + Gold</option>
-            <option value="amethyst">Amethyst + Lilac + Gold</option>
-            <option value="sage">Sage + Ivory + Gold</option>
-            <option value="blush">Blush + Ivory + Gold</option>
-            <option value="blue">Dusty Blue + Ivory + Gold</option>
-          </select>
-        </label>
-        <div class="swatches" id="swatches"></div>
-        <div class="controlGrid">
-          <label>Florals<input id="floralIntensity" type="range" min="0" max="1" step="0.1" value="0.35"></label>
-          <label>Gold accents<input id="goldIntensity" type="range" min="0.5" max="1.8" step="0.1" value="1.25"></label>
-        </div>
-      </section>
-
       <section class="panel" id="stationsPanel">
-        <div class="panelTitle"><span>03</span><div><h2>Activity stations</h2><p>Toggle each wedding activity on or off.</p></div></div>
+        <div class="panelTitle"><div><h2>Activity stations</h2><p>Choose the activities for your reception.</p></div></div>
         <div class="stationGrid">
-          <label><input id="photoBooth" type="checkbox" checked><span>📸</span> Photo booth</label>
-          <label><input id="polaroid" type="checkbox" checked><span>📷</span> Polaroid book</label>
-          <label><input id="video" type="checkbox" checked><span>🎥</span> Video messages</label>
-          <label><input id="advice" type="checkbox" checked><span>💌</span> Advice jar</label>
-          <label><input id="cake" type="checkbox" checked><span>🎂</span> Cake / sweets</label>
-          <label><input id="dj" type="checkbox" checked><span>🎵</span> DJ</label>
+          <label><input id="photoBooth" type="checkbox" checked>Photo booth</label><label><input id="polaroid" type="checkbox" checked>Polaroid book</label>
+          <label><input id="video" type="checkbox" checked>Video messages</label><label><input id="advice" type="checkbox" checked>Advice jar</label>
+          <label><input id="cake" type="checkbox" checked>Cake / sweets</label><label><input id="dj" type="checkbox" checked>DJ</label>
         </div>
       </section>
-
       <section class="panel" id="guestsPanel">
-        <div class="panelTitle"><span>04</span><div><h2>Guest seating</h2><p>Assign guests and mix both families.</p></div></div>
-        <div class="grid2 guestInputs">
-          <input id="guestName" placeholder="Guest name">
-          <select id="guestSide"><option>Bride family</option><option>Groom family</option><option>Friends</option></select>
-        </div>
-        <div class="buttonrow"><button id="addGuest">Add guest</button><button id="fillDemoGuests">Fill 95 demo guests</button></div>
+        <div class="panelTitle"><div><h2>Guest seating</h2><p>Assign guests and mix both families.</p></div></div>
+        <div class="grid2 guestInputs"><input id="guestName" aria-label="Guest name" placeholder="Guest name" maxlength="200"><select id="guestSide" aria-label="Family side"><option>Bride family</option><option>Groom family</option><option>Friends</option></select></div>
+        <div class="buttonrow two"><button id="addGuest">Add guest</button><button id="fillDemoGuests">Fill demo guests</button></div>
         <div id="guestList" class="scrollList"></div>
       </section>
-
-      <section class="panel" id="decorPanel">
-        <div class="panelTitle"><span>05</span><div><h2>Décor budget</h2><p>Keep a simple shopping list while you design.</p></div></div>
-        <div class="grid3"><input id="itemName" placeholder="Item"><input id="itemPrice" type="number" min="0" step=".01" placeholder="$"><input id="itemQty" type="number" min="1" value="1"></div>
-        <input id="itemUrl" placeholder="Product link (optional)">
-        <button id="addItem">Add décor item</button>
-        <div id="shoppingList" class="scrollList"></div>
+      <section class="panel" id="budgetPanel">
+        <div class="panelTitle"><div><h2>Décor budget</h2><p>A shopping list for the pieces you want to buy.</p></div></div>
+        <div class="grid3"><input id="itemName" aria-label="Shopping item" placeholder="Item" maxlength="200"><input id="itemPrice" aria-label="Item price" type="number" min="0" step=".01" placeholder="$"><input id="itemQty" aria-label="Item quantity" type="number" min="1" step="1" value="1"></div>
+        <input id="itemUrl" aria-label="Product link" placeholder="Product link (optional)">
+        <button id="addItem">Add to shopping list</button><div id="shoppingList" class="scrollList"></div>
         <div class="budgetTotal"><span>Estimated décor total</span><strong id="budgetTotal">$0</strong></div>
       </section>
-
-      <section class="panel compact">
-        <div class="panelTitle"><span>06</span><div><h2>Save & share</h2></div></div>
+      <section class="panel compact" id="savePanel">
+        <div class="panelTitle"><div><h2>Save & share</h2><p>Save a plan here, or export a file to keep.</p></div></div>
         <div class="buttonrow"><button id="saveLocal">Save</button><button id="loadLocal">Load</button><button id="downloadPlan">Export JSON</button></div>
         <label class="fileLabel">Import plan<input id="importPlan" type="file" accept=".json,application/json"></label>
+        <button id="snapshot">Download room image</button>
       </section>
-
-      <p class="note">The room shell follows the supplied Mont-Blanc floor plan: 35 ft maximum width, 62 ft length and 12.5 ft ceiling. Furniture and window dimensions remain planning approximations.</p>
+      <p class="note">35 ft maximum width · 62 ft length · 12.5 ft ceiling. The room follows the supplied floor plan. Furniture and décor are visual approximations; check fit and clearances with your venue.</p>
     </aside>
-
-    <main>
+    <main aria-label="3D wedding room">
       <div id="viewport"></div>
-
-      <button id="openSidebar" class="floatingPlannerBtn" aria-label="Open planner">☰ Planner</button>
-
       <div class="canvasTopbar">
-        <div class="viewGroup">
-          <span class="toolbarLabel">VIEW</span>
-          <button id="topView">Top</button>
-          <button id="roomView" class="active">3D room</button>
-          <button id="windowView">Windows</button>
-          <button id="guestView1">Guest A</button>
-          <button id="guestView2">Guest B</button>
-          <button id="coupleView">Couple</button>
+        <button id="openSidebar" class="floatingPlannerBtn" aria-label="Open planner">Planner</button>
+        <div class="viewGroup" role="group" aria-label="Room views">
+          <button id="roomView" class="active">3D room</button><button id="topView">Top</button><button id="windowView">Windows</button>
+          <button id="guestView1">Guest A</button><button id="guestView2">Guest B</button><button id="coupleView">Couple</button>
         </div>
         <div class="displayGroup">
-          <label><input id="wallsToggle" type="checkbox" checked> Walls</label>
-          <label><input id="labelsToggle" type="checkbox" checked> Labels</label>
+          <label><input id="moveMode" type="checkbox" checked>Move pieces</label><label><input id="wallsToggle" type="checkbox" checked>Walls</label><label><input id="labelsToggle" type="checkbox" checked>Labels</label>
         </div>
       </div>
-
-      <div class="topHud">
-        <div class="metric"><strong id="assignedCount">0</strong><span>assigned</span></div>
-        <div class="metric"><strong id="unassignedCount">95</strong><span>unassigned</span></div>
-        <div class="metric"><strong id="seatCount">95</strong><span>seats</span></div>
-        <div class="metric"><strong id="tableCountMetric">10</strong><span>tables</span></div>
-      </div>
-
-      <div class="orientationCard">
-        <span class="windowDot"></span><strong>WINDOW SIDE</strong>
-        <span class="exitDot"></span><strong>EMERGENCY EXIT</strong>
-      </div>
-
-      <div id="hud">
-        <span id="status">Loading 3D room…</span>
-        <span id="capacity">95 seats</span>
-      </div>
-      <div id="errorBanner" hidden></div>
+      <div class="topHud"><div class="metric"><strong id="assignedCount">0</strong><span>assigned</span></div><div class="metric"><strong id="unassignedCount">95</strong><span>unassigned</span></div><div class="metric"><strong id="seatCount">95</strong><span>seats</span></div><div class="metric"><strong id="tableCountMetric">10</strong><span>tables</span></div></div>
+      <div class="orientationCard"><span class="windowDot"></span><strong>WINDOW SIDE</strong><span class="exitDot"></span><strong>EMERGENCY EXIT</strong></div>
+      <div id="hud"><span id="status" role="status">Loading your room…</span><span id="capacity">95 seats</span></div>
+      <div id="errorBanner" role="alert" hidden></div>
     </main>
   </div>
-  <script type="module" src="./app.js"></script>
+  <script type="module">
+    import('./app.js').catch(error => {
+      const banner = document.getElementById('errorBanner');
+      banner.hidden = false;
+      banner.textContent = 'The 3D room could not start. Please use a browser with WebGL enabled and reload. ' + error.message;
+      document.getElementById('status').textContent = 'Room unavailable';
+    });
+  </script>
 </body>
 </html>
