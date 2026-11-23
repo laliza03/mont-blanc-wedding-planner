@@ -699,3 +699,8 @@ textarea:focus-visible { outline:2px solid var(--deep); outline-offset:2px; }
 .presetThemes .themePaletteList { max-height:440px; overflow:auto; padding:2px; }
 .themeCustomHeading { font-size:.9375rem; margin:14px 0 6px; }
 #cancelThemes { margin-top:8px; font-size:.875rem; }
+@media(max-width:760px) {
+  #closeSidebar { position:fixed; top:16px; left:min(calc(90vw - 48px),352px); z-index:30; background:#fff; box-shadow:0 3px 12px #3023371a; }
+  .sidebar .sectionNav { margin-right:42px; }
+  .brandbar>div { padding-right:35px; }
+}
