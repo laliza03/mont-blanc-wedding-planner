@@ -48,8 +48,9 @@ export function normalizePlan(data) {
   }
   const tableCount = Math.round(number(data.tableCount, 10, 8, 10));
   const guestTarget = Math.round(number(data.guestTarget, 95, 1, 120));
-  const themeName = Object.hasOwn(palettes, data.themeName) ? data.themeName : 'lavender';
-  const colors = { ...defaultColors, ...palettes[themeName] };
+  const themeName = data.themeName==='custom'||Object.hasOwn(palettes, data.themeName) ? data.themeName : 'lavender';
+  const themeLabel = text(data.themeLabel,themeName==='custom'?'My custom colours':`${themeName[0].toUpperCase()}${themeName.slice(1)}`);
+  const colors = { ...defaultColors, ...(palettes[themeName]||palettes.lavender) };
   for (const key of Object.keys(colors)) if (isColor(data.colors?.[key])) colors[key] = data.colors[key];
   const ids = new Set();
   const objects = data.objects.map(o => {
@@ -86,7 +87,7 @@ export function normalizePlan(data) {
     else g.table = '';
   }
   return {
-    version: 4, themeName, colors, tableCount, guestTarget, objects, guests,
+    version: 4, themeName, themeLabel, colors, tableCount, guestTarget, objects, guests,
     floralIntensity: number(data.floralIntensity, .35, 0, 1),
     goldIntensity: number(data.goldIntensity, 1.25, .5, 1.8),
     shopping: Array.isArray(data.shopping) ? data.shopping.filter(it => it && typeof it.name === 'string').map(it => ({

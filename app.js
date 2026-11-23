@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { mountThemeAssistant } from './theme-assistant-ui.js';
 import { palettes, defaultColors, decorKinds, stationIds, clamp, seatDistribution, safeUrl, normalizePlan } from './planner-state.js';
 
 const $ = id => document.getElementById(id);
@@ -17,6 +18,8 @@ function attempt(action) {
 }
 
 let themeName = 'lavender';
+let themeLabel = 'Lavender + Ivory + Gold';
+let themeStylist;
 let colors = { ...defaultColors, ...palettes[themeName] };
 let floralIntensity = .35, goldIntensity = 1.25;
 let selected = null, guests = [], shopping = [];
@@ -402,13 +405,20 @@ for(const event of ['pointerup','pointercancel','lostpointercapture']) renderer.
 
 function updateColors() {
   for(const [name,color] of Object.entries(colors)) { mats[name].color.set(color); $(`color-${name}`).value=color; }
-  for(const name of ['accent','deep','gold']) document.documentElement.style.setProperty(`--${name}`,colors[name]);
+  // The interface keeps its readable brand colours when room palettes change.
   $('swatches').replaceChildren();
   for(const name of ['linen','accent','deep','gold']) { const swatch=document.createElement('span'); swatch.className='swatch'; swatch.style.background=colors[name]; swatch.title=name; $('swatches').append(swatch); }
   mats.gold.metalness=clamp(.35+goldIntensity*.34,0,.96); mats.gold.roughness=clamp(.65-goldIntensity*.3,.1,.6);
 }
-$('theme').onchange=e=> { themeName=e.target.value; Object.assign(colors,palettes[themeName]); updateColors(); if(selected?.userData.type==='decor'&&!selected.userData.color) $('objectColor').value=colors.accent; status('Palette updated. Your layout has been kept.'); };
-for(const name of Object.keys(colors)) $(`color-${name}`).oninput=e=> { colors[name]=e.target.value; updateColors(); };
+$('theme').onchange=e=> {
+  const name=e.target.value; themeStylist?.revert(false);
+  if(!palettes[name]) { $('theme').value=themeName; return; }
+  themeName=name; $('theme').value=name; themeLabel=$('theme').selectedOptions[0].textContent;
+  Object.assign(colors,palettes[name]); updateColors(); themeStylist?.refresh();
+  if(selected?.userData.type==='decor'&&!selected.userData.color) $('objectColor').value=colors.accent;
+  status('Palette updated. Your layout has been kept.');
+};
+for(const name of Object.keys(colors)) $(`color-${name}`).oninput=e=> { const value=e.target.value; themeStylist?.commit(); colors[name]=value; themeName='custom'; themeLabel='My custom colours'; $('theme').value='custom'; updateColors(); themeStylist?.refresh(); };
 $('floralIntensity').oninput=e=> { floralIntensity=Number(e.target.value); flowerClusters.forEach(blooms); };
 $('goldIntensity').oninput=e=> { goldIntensity=Number(e.target.value); updateColors(); };
 $('rebuild').onclick=()=>rebuild();
@@ -471,14 +481,16 @@ function metrics() {
   $('capacity').textContent=`${seats} seats · ${[...objects.values()].filter(o=>o.userData.type==='decor').length} decorations`;
 }
 function planData() {
-  return { version:4,themeName,colors:{...colors},floralIntensity,goldIntensity,guestTarget:Number($('guestTarget').value),tableCount:Number($('tableCount').value),
+  themeStylist?.commit();
+  return { version:4,themeName,themeLabel,colors:{...colors},floralIntensity,goldIntensity,guestTarget:Number($('guestTarget').value),tableCount:Number($('tableCount').value),
     guests,shopping,objects:[...objects.values()].map(transform),stations:Object.fromEntries(stationIds.map(id=>[id,objects.get(id)?.visible!==false])),
     display:{walls:$('wallsToggle').checked,labels:$('labelsToggle').checked} };
 }
 function loadPlan(raw) {
   const data=normalizePlan(raw); // No mutation until validation has succeeded.
+  themeStylist?.commit();
   selectObject(null); [...objects.keys()].forEach(removeObject);
-  themeName=data.themeName; colors=data.colors; floralIntensity=data.floralIntensity; goldIntensity=data.goldIntensity; guests=data.guests; shopping=data.shopping;
+  themeName=data.themeName; themeLabel=data.themeLabel; colors=data.colors; floralIntensity=data.floralIntensity; goldIntensity=data.goldIntensity; guests=data.guests; shopping=data.shopping;
   $('guestTarget').value=data.guestTarget; $('tableCount').value=data.tableCount; $('theme').value=themeName;
   $('floralIntensity').value=floralIntensity; $('goldIntensity').value=goldIntensity; updateColors();
   sweetheart(); Object.values(stationDefs).forEach(args=>station(...args)); rebuild(false);
@@ -486,6 +498,7 @@ function loadPlan(raw) {
   Object.entries(stationDefs).forEach(([checkbox,[id]])=> { $(checkbox).checked=data.stations[id]; objects.get(id).visible=data.stations[id]; });
   objects.forEach(obj=> { if(obj.userData.anchor) obj.visible=objects.get(obj.userData.anchor)?.visible!==false; });
   $('wallsToggle').checked=data.display.walls; $('labelsToggle').checked=data.display.labels;
+  themeStylist?.refresh();
   refreshSelect(); renderGuests(); renderShopping(); renderDecorations(); metrics(); status('Saved plan loaded, including decorations, colours and station visibility.');
 }
 $('saveLocal').onclick=()=>attempt(()=> { localStorage.setItem('montBlancWeddingPlan',JSON.stringify(planData())); status('Your room, decorations and colours are saved in this browser.'); });
@@ -575,3 +588,15 @@ renderer.domElement.addEventListener('webglcontextlost',e=> { e.preventDefault()
 updateColors(); sweetheart(); Object.values(stationDefs).forEach(args=>station(...args)); rebuild(false);
 renderShopping(); renderDecorations(); selectObject(null); metrics(); animate();
 status('Your room is ready. Add a decoration or try a colour palette.');
+
+// Theme previews update materials in place; object geometry and seating stay intact.
+themeStylist=mountThemeAssistant({
+  getState:()=>({themeName,themeLabel,colors:{...colors},floralIntensity,goldIntensity}),
+  setState:next=> {
+    themeName=next.themeName; themeLabel=next.themeLabel; colors={...next.colors}; floralIntensity=next.floralIntensity; goldIntensity=next.goldIntensity;
+    $('theme').value=themeName; $('floralIntensity').value=floralIntensity; $('goldIntensity').value=goldIntensity;
+    updateColors(); flowerClusters.forEach(blooms);
+    if(selected?.userData.type==='decor'&&!selected.userData.color) $('objectColor').value=colors.accent;
+  },
+  onMessage:status
+});

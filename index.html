@@ -25,7 +25,7 @@
       </div>
       <nav class="sectionNav" aria-label="Planner sections">
         <button class="navChip active" data-jump="decorPanel">Decorate</button>
-        <button class="navChip" data-jump="themePanel">Colours</button>
+        <button class="navChip" data-jump="themePanel">AI & colours</button>
         <button class="navChip" data-jump="layoutPanel">Layout</button>
         <button class="navChip" data-jump="stationsPanel">Stations</button>
         <button class="navChip" data-jump="guestsPanel">Guests</button>
@@ -63,10 +63,35 @@
         <div id="decorationList" class="scrollList decorList" aria-label="Placed decorations"></div>
       </section>
       <section class="panel" id="themePanel">
-        <div class="panelTitle"><div><h2>Colours & atmosphere</h2><p>Preview changes without moving your furniture.</p></div></div>
+        <div class="panelTitle"><div><div class="eyebrow">YOUR COLOUR STYLIST</div><h2>Find your wedding theme</h2><p>Describe the feeling. Let AI suggest the colours.</p></div></div>
+        <form id="themeAssistantForm">
+          <label for="themePrompt">What does your wedding feel like?</label>
+          <textarea id="themePrompt" rows="3" maxlength="1500" placeholder="A romantic lavender garden, ivory linens and warm gold. Elegant, with no pink."></textarea>
+          <div class="themePromptChips" aria-label="Theme ideas">
+            <button type="button" data-theme-prompt="A romantic garden wedding with lavender, ivory and warm gold. Light and elegant, without pink.">Garden romance</button>
+            <button type="button" data-theme-prompt="A timeless black-tie wedding with champagne, ivory and touches of black. Refined and candlelit.">Black tie</button>
+            <button type="button" data-theme-prompt="A fresh coastal wedding with dusty blues, soft white and silver. Avoid purple.">Coastal blues</button>
+          </div>
+          <button class="primary" id="suggestThemes" type="submit">Suggest themes</button>
+          <button id="cancelThemes" type="button" hidden>Cancel request</button>
+          <p id="themeAssistantStatus" class="tip" role="status">Live AI opens a private connection. Only your description and colours are sent; guest names and your budget stay here.</p>
+        </form>
+        <label class="themeScope"><input type="checkbox" id="themeWholeRoom"> Include walls and floors</label>
+        <p id="activeThemeLabel" class="activeThemeLabel"></p>
+        <div id="themePreviewBar" class="themePreviewBar" hidden>
+          <strong>Theme preview</strong>
+          <div class="buttonrow two"><button id="keepTheme" class="primary">Keep theme</button><button id="revertTheme">Restore colours</button></div>
+          <button id="shuffleTheme">Shuffle colour placement</button>
+        </div>
+        <div id="themePaletteList" class="themePaletteList" aria-label="AI theme suggestions"></div>
+        <div id="themePreviewTips" class="themePreviewTips"></div>
+        <details class="presetThemes"><summary>Explore ready-made themes</summary><div id="presetThemeList" class="themePaletteList" aria-label="Ready-made themes"></div></details>
+        <p class="tip">Your layout stays in place. Decorations with individual colours keep them; select a piece and choose “Use palette colour” to include it.</p>
+        <div class="divider"></div>
+        <h3 class="themeCustomHeading">Fine-tune your colours</h3>
         <label>Palette<select id="theme">
           <option value="lavender">Lavender + Ivory + Gold</option><option value="amethyst">Amethyst + Lilac + Gold</option>
-          <option value="sage">Sage + Ivory + Gold</option><option value="blush">Blush + Ivory + Gold</option><option value="blue">Dusty Blue + Ivory + Gold</option>
+          <option value="sage">Sage + Ivory + Gold</option><option value="blush">Blush + Ivory + Gold</option><option value="blue">Dusty Blue + Ivory + Gold</option><option value="custom">Custom / AI theme</option>
         </select></label>
         <div class="swatches" id="swatches"></div>
         <div class="colorGrid">

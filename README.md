@@ -8,12 +8,13 @@ Open the [GitHub Pages site](https://laliza03.github.io/mont-blanc-wedding-plann
 
 - **Decorate:** add florals, candles, arches, draped backdrops, vases, greenery, lanterns or an aisle runner. Each piece is a visible 3D object. Select a table or activity station first to place a small decoration on its tabletop.
 - **Place a piece:** drag it in the room, or select it in the menu and adjust position, rotation, size and height. Decorations can be duplicated, individually coloured and removed. Pieces added to a tabletop follow that furniture when it moves, rotates or resizes; dragging or repositioning a piece independently detaches it. Placement stays within the room footprint; pieces can overlap, so inspect clearances yourself.
+- **Theme stylist:** describe a mood for live AI to suggest three coordinated palettes, then preview, keep, restore or shuffle them. Eight ready-made palettes work immediately. The live AI connection shows activation pending until its private backend receives approved credentials. “Include walls and floors” controls whether a theme changes the venue surfaces. Individual decoration colours are preserved.
 - **Colours:** choose one of five palettes, or edit accent, flower, metal, table linen, chair, wall, room floor and dance floor colours separately. Custom-coloured decorations keep their colour until you choose “Use palette colour.” Floral fullness includes a zero-flower setting. Colour and fullness changes preserve object positions and guest assignments.
 - **Views:** orbit, top, window side, two guest views and the couple's view. Near walls cut away automatically in exterior views. Turn off “Move pieces” to orbit freely when dragging over furniture. Toggle labels and walls independently.
 - **Seating:** 8–10 tables and 1–120 total seats. Updating seats retains surviving table transforms. Full tables cannot be overbooked; guests displaced by a reduced capacity or removed table become unassigned.
 - **Stations:** toggle the photo booth, Polaroid scrapbook, video-message, advice, cake/sweets and DJ stations. Hidden stations keep their placement.
 - **Budget:** track shopping items, prices, quantities and product links. The shopping list is separate from the visual decoration library.
-- **Save:** save/load in the current browser, export/import a JSON plan, or download a PNG of the current room view. Exported plans retain decorations, per-piece colours, room colours, transforms, station visibility, guests, shopping items and display settings. Version 3 plans from the original planner are supported. Invalid imports leave the current room intact.
+- **Save:** save/load in the current browser, export/import a JSON plan, or download a PNG of the current room view. Exported plans retain decorations, per-piece colours, room colours, transforms, station visibility, guests, shopping items and display settings. Theme names and custom AI colours are retained. Version 3 plans from the original planner are supported. Invalid imports leave the current room intact.
 
 On phones, the room opens full-screen; tap **Planner** to open the controls, then close the panel to see the result. There is no server-side storage. Export a JSON file to keep a backup or move a plan between browsers/devices. Furniture arrangements are not automatically saved; use **Save** or **Export JSON**.
 
@@ -48,4 +49,8 @@ Three.js **0.167.1** and its OrbitControls are bundled locally in `vendor/three/
 
 ## Validation
 
-`npm test` covers seat distribution, version 3 compatibility, complete version 4 JSON round trips, hidden stations, malformed imports, numeric and colour validation, guest capacity and safe product links. Manual browser QA covers all decoration types, drag placement, individual and room colours, save/load, import/export, image export and narrow/mobile layouts.
+`npm test` covers AI request authentication and data minimization, palette validation and scope, theme save/load, seat distribution, version 3 compatibility, complete version 4 JSON round trips, hidden stations, malformed imports, numeric and colour validation, guest capacity and safe product links. Manual browser QA covers all decoration types, drag placement, individual and room colours, save/load, import/export, image export and narrow/mobile layouts.
+
+## Live AI deployment
+
+The private AI service lives in `theme-agent/`; see its README for the required secure key setup. GitHub Pages only serves the frontend. `ai-config.json` contains the public backend origin and activation state, never an API key. The browser bridge requires exact origin, window and random channel matches. AI errors leave the current room intact. Room palettes do not recolour the application controls, so very pale or dark theme colours keep the interface readable.
